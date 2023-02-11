@@ -1,0 +1,1 @@
+# vaik-text-recognition-tflite-inference
