@@ -25,8 +25,19 @@ class TfliteModel:
         return output, raw_pred
 
     def __load(self, input_saved_model_path: str, num_thread: int):
-        self.interpreter = tflite.Interpreter(model_path=input_saved_model_path, num_threads=num_thread)
-        self.interpreter.allocate_tensors()
+        try:
+            self.interpreter = tflite.Interpreter(model_path=input_saved_model_path, num_threads=num_thread)
+            self.interpreter.allocate_tensors()
+        except RuntimeError:
+            _EDGETPU_SHARED_LIB = {
+                'Linux': 'libedgetpu.so.1',
+                'Darwin': 'libedgetpu.1.dylib',
+                'Windows': 'edgetpu.dll'
+            }[platform.system()]
+            delegates = [tflite.load_delegate(_EDGETPU_SHARED_LIB)]
+            self.interpreter = tflite.Interpreter(model_path=input_saved_model_path, experimental_delegates=delegates,
+                                                  num_threads=num_thread)
+            self.interpreter.allocate_tensors()
         self.model_input_shape = self.interpreter.get_input_details()[0]['shape']
 
     def __preprocess_image(self, input_image: np.ndarray, resize_input_shape: Tuple[int, int]) -> np.ndarray:
