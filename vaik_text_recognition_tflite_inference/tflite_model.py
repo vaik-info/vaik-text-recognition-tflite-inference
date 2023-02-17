@@ -132,6 +132,6 @@ class TfliteModel:
             if label_index == self.blank_index:
                 continue
             labels += self.classes[label_index]
-            label_indexes.append(label_index)
-            scores.append(threshold_pred_softmax_overlap_filtered[index])
+            label_indexes.append(int(label_index))
+            scores.append(float(threshold_pred_softmax_overlap_filtered[index]))
         return labels, label_indexes, np.prod(scores)
