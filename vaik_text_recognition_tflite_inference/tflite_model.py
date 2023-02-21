@@ -5,7 +5,6 @@ from PIL import Image
 import numpy as np
 import json
 import tflite_runtime.interpreter as tflite
-import tensorflow as tf
 
 
 class TfliteModel:
@@ -109,7 +108,7 @@ class TfliteModel:
         threshold_pred_min, threshold_pred_max = np.min(threshold_pred), np.max(threshold_pred)
         threshold_blank_max = np.max(threshold_pred[:, :, -1])
 
-        threshold_pred_softmax = tf.nn.softmax((raw_pred - threshold_pred_min + threshold_pred_max)).numpy()
+        threshold_pred_softmax = self.__softmax((raw_pred - threshold_pred_min + threshold_pred_max))
         threshold_pred[threshold_pred_softmax < self.softmax_threshold] = threshold_pred_min
         for batch_index in range(raw_pred.shape[0]):
             for width_index in range(raw_pred.shape[1]):
